@@ -210,26 +210,26 @@ public:
     // From static arrays - if 0-terminated, remove 0 from the view
     // All other containers allow 0s within the length, so we do not remove them
     template <std::size_t N>
-    constexpr basic_string_span(element_type(&arr)[N]) : span_(remove_z(arr))
+    constexpr explicit basic_string_span(element_type(&arr)[N]) : span_(remove_z(arr))
     {}
 
     template <std::size_t N, class ArrayElementType = std::remove_const_t<element_type>>
-    constexpr basic_string_span(std::array<ArrayElementType, N> & arr) noexcept : span_(arr)
+    constexpr explicit basic_string_span(std::array<ArrayElementType, N> & arr) noexcept : span_(arr)
     {}
 
     template <std::size_t N, class ArrayElementType = std::remove_const_t<element_type>>
-    constexpr basic_string_span(const std::array<ArrayElementType, N>& arr) noexcept : span_(arr)
+    constexpr explicit basic_string_span(const std::array<ArrayElementType, N>& arr) noexcept : span_(arr)
     {}
 
     // Container signature should work for basic_string after C++17 version exists
     template <class Traits, class Allocator>
     // GSL_SUPPRESS(bounds.4) // TODO: parser bug
-    constexpr basic_string_span(std::basic_string<element_type, Traits, Allocator> & str)
+    constexpr explicit basic_string_span(std::basic_string<element_type, Traits, Allocator> & str)
         : span_(&str[0], str.length())
     {}
 
     template <class Traits, class Allocator>
-    constexpr basic_string_span(const std::basic_string<element_type, Traits, Allocator>& str)
+    constexpr explicit basic_string_span(const std::basic_string<element_type, Traits, Allocator>& str)
         : span_(&str[0], str.length())
     {}
 
@@ -240,7 +240,7 @@ public:
                   std::is_convertible<typename Container::pointer, pointer>::value &&
                   std::is_convertible<typename Container::pointer,
                                       decltype(std::declval<Container>().data())>::value>>
-    constexpr basic_string_span(Container & cont) : span_(cont)
+    constexpr explicit basic_string_span(Container & cont) : span_(cont)
     {}
 
     template <class Container,
@@ -249,7 +249,7 @@ public:
                   std::is_convertible<typename Container::pointer, pointer>::value &&
                   std::is_convertible<typename Container::pointer,
                                       decltype(std::declval<Container>().data())>::value>>
-    constexpr basic_string_span(const Container& cont) : span_(cont)
+    constexpr explicit basic_string_span(const Container& cont) : span_(cont)
     {}
 
     // from string_span
@@ -257,7 +257,7 @@ public:
         class OtherValueType, std::size_t OtherExtent,
         class = std::enable_if_t<std::is_convertible<
             typename basic_string_span<OtherValueType, OtherExtent>::impl_type, impl_type>::value>>
-    constexpr basic_string_span(basic_string_span<OtherValueType, OtherExtent> other)
+    constexpr explicit basic_string_span(basic_string_span<OtherValueType, OtherExtent> other)
         : span_(other.data(), other.length())
     {}
 

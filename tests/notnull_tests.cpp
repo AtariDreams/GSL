@@ -19,9 +19,9 @@
 #include <gsl/pointers> // for not_null, operator<, operator<=, operator>
 
 #include <algorithm> // for addressof
+#include <cstdint>   // for uint16_t
 #include <memory>    // for shared_ptr, make_shared, operator<, opera...
 #include <sstream>   // for operator<<, ostringstream, basic_ostream:...
-#include <stdint.h>  // for uint16_t
 #include <string>    // for basic_string, operator==, string, operator<<
 #include <typeinfo>  // for type_info
 
@@ -42,8 +42,8 @@ struct Unrelated
 template <typename T>
 struct RefCounted
 {
-    RefCounted(T* p) : p_(p) {}
-    operator T*() { return p_; }
+    explicit RefCounted(T* p) : p_(p) {}
+    explicit operator T*() { return p_; }
     T* p_;
 };
 
@@ -51,8 +51,8 @@ struct RefCounted
 template <typename T>
 struct CustomPtr
 {
-    CustomPtr(T* p) : p_(p) {}
-    operator T*() { return p_; }
+    explicit CustomPtr(T* p) : p_(p) {}
+    explicit operator T*() { return p_; }
     bool operator!=(std::nullptr_t) const { return p_ != nullptr; }
     T* p_ = nullptr;
 };

@@ -87,45 +87,45 @@ public:
     static_assert(details::is_comparable_to_nullptr<T>::value, "T cannot be compared to nullptr.");
 
     template <typename U, typename = std::enable_if_t<std::is_convertible<U, T>::value>>
-    constexpr not_null(U&& u) : ptr_(std::forward<U>(u))
+    constexpr explicit not_null(U&& u) : ptr_(std::forward<U>(u))
     {
         Expects(ptr_ != nullptr);
     }
 
     template <typename = std::enable_if_t<!std::is_same<std::nullptr_t, T>::value>>
-    constexpr not_null(T u) : ptr_(std::move(u))
+    constexpr explicit not_null(T u) : ptr_(std::move(u))
     {
         Expects(ptr_ != nullptr);
     }
 
     template <typename U, typename = std::enable_if_t<std::is_convertible<U, T>::value>>
-    constexpr not_null(const not_null<U>& other) : not_null(other.get())
+    constexpr explicit not_null(const not_null<U>& other) : not_null(other.get())
     {}
 
     not_null(const not_null& other) = default;
-    not_null& operator=(const not_null& other) = default;
+    virtual not_null& operator=(const not_null& other) = default;
     constexpr std::conditional_t<std::is_copy_constructible<T>::value, T, const T&> get() const
     {
         Ensures(ptr_ != nullptr);
         return ptr_;
     }
 
-    constexpr operator T() const { return get(); }
+    constexpr explicit operator T() const { return get(); }
     constexpr decltype(auto) operator->() const { return get(); }
     constexpr decltype(auto) operator*() const { return *get(); }
 
     // prevents compilation when someone attempts to assign a null pointer constant
-    not_null(std::nullptr_t) = delete;
-    not_null& operator=(std::nullptr_t) = delete;
+    explicit not_null(std::nullptr_t) = delete;
+    virtual not_null& operator=(std::nullptr_t) = delete;
 
     // unwanted operators...pointers only point to single objects!
-    not_null& operator++() = delete;
-    not_null& operator--() = delete;
-    not_null operator++(int) = delete;
-    not_null operator--(int) = delete;
-    not_null& operator+=(std::ptrdiff_t) = delete;
-    not_null& operator-=(std::ptrdiff_t) = delete;
-    void operator[](std::ptrdiff_t) const = delete;
+    virtual not_null& operator++() = delete;
+    virtual not_null& operator--() = delete;
+    virtual const not_null operator++(int) = delete;
+    virtual const not_null operator--(int) = delete;
+    virtual not_null& operator+=(std::ptrdiff_t) = delete;
+    virtual not_null& operator-=(std::ptrdiff_t) = delete;
+    virtual void operator[](std::ptrdiff_t) const = delete;
 
 private:
     T ptr_;
@@ -249,14 +249,14 @@ public:
     {}
 
     template <typename U, typename = std::enable_if_t<std::is_convertible<U, T>::value>>
-    constexpr strict_not_null(const not_null<U>& other) : not_null<T>(other)
+    constexpr explicit strict_not_null(const not_null<U>& other) : not_null<T>(other)
     {}
 
     template <typename U, typename = std::enable_if_t<std::is_convertible<U, T>::value>>
-    constexpr strict_not_null(const strict_not_null<U>& other) : not_null<T>(other)
+    constexpr explicit strict_not_null(const strict_not_null<U>& other) : not_null<T>(other)
     {}
 
-    strict_not_null(strict_not_null&& other) = default;
+    strict_not_null(strict_not_null&& other) noexcept = default;
     strict_not_null(const strict_not_null& other) = default;
     strict_not_null& operator=(const strict_not_null& other) = default;
     strict_not_null& operator=(const not_null<T>& other)
@@ -266,7 +266,7 @@ public:
     }
 
     // prevents compilation when someone attempts to assign a null pointer constant
-    strict_not_null(std::nullptr_t) = delete;
+    explicit strict_not_null(std::nullptr_t) = delete;
     strict_not_null& operator=(std::nullptr_t) = delete;
 
     // unwanted operators...pointers only point to single objects!
